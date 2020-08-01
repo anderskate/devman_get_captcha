@@ -4,18 +4,29 @@ from selenium import webdriver
 URL = 'https://cgifederal.secure.force.com'
 
 
+class WebDriver():
+    """Context manager to webdriver"""
+    def __init__(self, driver):
+        self.driver = driver
+
+    def __enter__(self):
+        return self.driver
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.driver.quit()
+
+
 def get_captcha_base64_image(url):
     """Get captcha image in base64 format."""
-    driver = webdriver.Firefox()
-    driver.get(url)
+    with WebDriver(webdriver.Chrome()) as driver:
 
-    image_element = driver.find_element_by_id(
-        'loginPage:SiteTemplate:siteLogin:loginComponent:loginForm:theId'
-    )
+        driver.get(url)
 
-    _, base64_img = image_element.get_attribute('src').split(',')
+        image_element = driver.find_element_by_id(
+            'loginPage:SiteTemplate:siteLogin:loginComponent:loginForm:theId'
+        )
 
-    driver.close()
+        _, base64_img = image_element.get_attribute('src').split(',')
 
     return base64_img
 
