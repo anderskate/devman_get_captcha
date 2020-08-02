@@ -6,6 +6,9 @@ import re
 
 
 URL = 'https://cgifederal.secure.force.com'
+CAPTCHA_ELEMENT_ID = 'loginPage:SiteTemplate:siteLogin:loginComponent:loginForm:theId'
+REGEX_SEARCH_CAPTCHA = r'data:image;base64,.'
+WAITING_TIME = 5
 
 
 class WebDriver():
@@ -21,7 +24,11 @@ class WebDriver():
 
 
 
-class wait_for_text_to_match(object):
+class SearchCaptchaDataInElement():
+    """Search for captcha data in an element attribute.
+
+    Searches using a regular expression.
+    """
     def __init__(self, locator, pattern):
         self.locator = locator
         self.pattern = re.compile(pattern)
@@ -41,12 +48,12 @@ def get_captcha_base64_image(url):
 
         driver.get(url)
 
-        wait = WebDriverWait(driver, 5)
+        wait = WebDriverWait(driver, WAITING_TIME)
 
         image_element = wait.until(
-            wait_for_text_to_match(
-                (By.ID, 'loginPage:SiteTemplate:siteLogin:loginComponent:loginForm:theId'),
-                r'data:image;base64,.'
+            SearchCaptchaDataInElement(
+                (By.ID, CAPTCHA_ELEMENT_ID),
+                REGEX_SEARCH_CAPTCHA
                 )
             )
         
