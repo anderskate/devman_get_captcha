@@ -1,8 +1,10 @@
+import re
+import asyncio
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.common.by import By
-import re
+
 
 
 URL = 'https://cgifederal.secure.force.com'
@@ -42,9 +44,10 @@ class SearchCaptchaDataInElement():
             return False
 
 
-def get_captcha_base64_image(url):
+async def get_captcha_base64_image(url):
     """Get captcha image in base64 format."""
-    with WebDriver(webdriver.Chrome()) as driver:
+    with WebDriver(webdriver.Firefox()) as driver:
+        await asyncio.sleep(0)
 
         driver.get(url)
 
@@ -59,7 +62,6 @@ def get_captcha_base64_image(url):
         
         _, base64_img = image_element.string.split(',')
 
-
     return base64_img
 
 
@@ -68,5 +70,4 @@ def pass_authorization_on_site():
 
 
 if __name__ == '__main__':
-    captcha = get_captcha_base64_image(URL)
-    print(captcha)
+    pass
