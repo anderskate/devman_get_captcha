@@ -78,7 +78,7 @@ async def get_captcha_base64_image(url):
 
         _ , base64_img = image_element.string.split(',')
 
-        print(base64_img)
+
         await asyncio.sleep(0)
 
     return base64_img
