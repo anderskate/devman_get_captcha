@@ -5,9 +5,12 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.common.by import By
 from contextlib import contextmanager
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from selenium.common.exceptions import StaleElementReferenceException
 
 
 URL = 'https://cgifederal.secure.force.com'
+REMOTE_SERVER_URL = 'http://127.0.0.1:4444/wd/hub'
 
 CAPTCHA_ELEMENT_ID = 'loginPage:SiteTemplate:siteLogin:loginComponent:loginForm:theId'
 EMAIL_FIELD_ELEMENT_ID = 'loginPage:SiteTemplate:siteLogin:loginComponent:loginForm:username'
@@ -29,7 +32,7 @@ def start_firefox_driver():
     At the end of the work, it closes all open windows, 
     exits the browser and services, and frees up all resources.
     """
-    driver = webdriver.Firefox()
+    driver = webdriver.Remote(REMOTE_SERVER_URL, DesiredCapabilities.CHROME)
     try:
         yield driver
     finally:
@@ -75,7 +78,7 @@ async def get_captcha_base64_image(url):
 
         _ , base64_img = image_element.string.split(',')
 
-
+        print(base64_img)
         await asyncio.sleep(0)
 
     return base64_img
