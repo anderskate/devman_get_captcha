@@ -75,13 +75,6 @@ async def get_captcha_base64_image(url):
 
         _ , base64_img = image_element.string.split(',')
 
-        wait = WebDriverWait(driver, WAITING_TIME)
-        username = wait.until(
-        ec.presence_of_element_located(
-            (By.XPATH, '//*[@id="nav"]/ul/li[2]/span')
-            )
-        )
-
 
         await asyncio.sleep(0)
 
