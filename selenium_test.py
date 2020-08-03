@@ -15,15 +15,20 @@ PASSWORD_FIELD_ELEMENT_ID = 'loginPage:SiteTemplate:siteLogin:loginComponent:log
 PRIVACY_STATEMENT_CHECKBOX_ELEMENT_NAME = 'loginPage:SiteTemplate:siteLogin:loginComponent:loginForm:j_id167'
 CAPTCHA_FIELD_ELEMENT_ID = 'loginPage:SiteTemplate:siteLogin:loginComponent:loginForm:recaptcha_response_field'
 LOGIN_BUTTON_FIELD_ID = 'loginPage:SiteTemplate:siteLogin:loginComponent:loginForm:loginButton'
+AUTHORIZED_USER_ELEMENT_XPATH = '//*[@id="nav"]/ul/li[2]/span'
 
 
 REGEX_SEARCH_CAPTCHA = r'data:image;base64,.'
-WAITING_TIME = 5
+WAITING_TIME = 10
 
 
 @contextmanager
-def start_driver():
-    """Run driver as context manager"""
+def start_firefox_driver():
+    """Launches the Firefox driver.
+
+    At the end of the work, it closes all open windows, 
+    exits the browser and services, and frees up all resources.
+    """
     driver = webdriver.Firefox()
     try:
         yield driver
@@ -50,8 +55,13 @@ class SearchCaptchaDataInElement():
 
 
 async def get_captcha_base64_image(url):
-    """Get captcha image in base64 format."""
-    with start_driver() as driver:
+    """Get captcha image in base64 format.
+
+    
+    If it is not possible to find an element, 
+    within the timeout period, it throws a TimeoutException.
+    """
+    with start_firefox_driver() as driver:
         driver.get(url)
 
         wait = WebDriverWait(driver, WAITING_TIME)
@@ -64,6 +74,13 @@ async def get_captcha_base64_image(url):
             )
 
         _ , base64_img = image_element.string.split(',')
+
+        wait = WebDriverWait(driver, WAITING_TIME)
+        username = wait.until(
+        ec.presence_of_element_located(
+            (By.XPATH, '//*[@id="nav"]/ul/li[2]/span')
+            )
+        )
 
 
         await asyncio.sleep(0)
@@ -94,7 +111,15 @@ async def pass_authorization_on_site(driver, email, password, captcha_symbols):
     login_button = driver.find_element_by_id(LOGIN_BUTTON_FIELD_ID)
     login_button.click()
 
-    await asyncio.sleep(0)
+    
+    # Checking for the presence of an authorized user element
+    # TODO Change to asynchronous wait
+    wait = WebDriverWait(driver, WAITING_TIME)
+    authorized_user_element = wait.until(
+        ec.presence_of_element_located(
+            (By.XPATH, AUTHORIZED_USER_ELEMENT_XPATH)
+            )
+        )
     
 
 
